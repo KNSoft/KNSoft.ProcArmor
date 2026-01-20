@@ -1,0 +1,11 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="KNSoft.ProcArmor/KNSoft.ProcArmor.vcxproj" Id="eb293843-8868-45ae-9805-27c9c6d75a10" />
+  <Project Path="UnitTest/UnitTest.vcxproj" Id="05a6df66-f010-452e-9542-cbebe2ccf83f">
+    <BuildDependency Project="KNSoft.ProcArmor/KNSoft.ProcArmor.vcxproj" />
+  </Project>
+</Solution>
