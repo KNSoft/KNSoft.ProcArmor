@@ -39,7 +39,7 @@ PA_Util_SetHook(
     _In_ PPA_UTIL_HOOK_FUNC HookFunc,
     _In_ PVOID DetourFunc)
 {
-    if (_InterlockedIncrement(&HookFunc->RefCount) != 0)
+    if (_InterlockedIncrement(&HookFunc->RefCount) != 1)
     {
         return S_OK;
     }

@@ -5,7 +5,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c" />
-    <ClCompile Include="RemoteThreadDllAttach.c" />
+    <ClCompile Include="DllAttach.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UnitTest.h" />

@@ -4,10 +4,10 @@
 
 DECLSPEC_EXPORT PA_INIT PA_Init = PA_INIT_DEBUG;
 
-TEST_DECL_FUNC(RemoteThreadDllAttach);
+TEST_DECL_FUNC(DllAttach);
 
 CONST UNITTEST_ENTRY UnitTestList[] = {
-    TEST_DECL_ENTRY(RemoteThreadDllAttach),
+    TEST_DECL_ENTRY(DllAttach),
     { 0 }
 };
 

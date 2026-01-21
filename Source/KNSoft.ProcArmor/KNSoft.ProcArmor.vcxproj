@@ -156,7 +156,6 @@
     <ClCompile Include="AntiDebug.c" />
     <ClCompile Include="Config.c" />
     <ClCompile Include="Integrity.c" />
-    <ClCompile Include="Misc.c" />
     <ClCompile Include="Environment.c" />
     <ClCompile Include="Hook.c" />
     <ClCompile Include="Main.c" />

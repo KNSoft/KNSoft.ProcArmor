@@ -17,7 +17,7 @@ Proactive runtime application hardening against various tampering and novel expl
   - VM Detection
   - Sandbox Detection
 - Novel Exploits Protection
-  - Heap harden
+  - Heap Hardening
   - Data Execution Prevention
   - Block Dynamic Code
 - DRM Protection

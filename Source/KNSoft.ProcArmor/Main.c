@@ -4,10 +4,11 @@ DECLSPEC_POINTERALIGN _Interlocked_operand_ PPA_INIT volatile g_Init = NULL;
 
 /* System DLL loading */
 
-PVOID g_hDll = NULL, g_hNtdll = NULL, g_hKernel32 = NULL, g_hUser32 = NULL;
+PVOID g_hDll = NULL, g_hNtdll = NULL, g_hKernel32 = NULL, g_hKernelBase = NULL, g_hUser32 = NULL;
 PVOID g_DllLoadCookie = NULL;
 
 static CONST UNICODE_STRING g_usKernel32 = RTL_CONSTANT_STRING(L"kernel32.dll");
+static CONST UNICODE_STRING g_usKernelBase = RTL_CONSTANT_STRING(L"KernelBase.dll");
 static CONST UNICODE_STRING g_usUser32 = RTL_CONSTANT_STRING(L"user32.dll");
 
 EXTERN_C PA_SYSTEM_DLL_LOAD_CALLBACK PA_AntiDLLAttach_SysDllLoad;
@@ -109,6 +110,7 @@ DllLoadCallback(
         {
             LdrUnregisterDllNotification(g_DllLoadCookie);
         }
+        PA_Util_GetSysDllBase(&g_usKernelBase, &g_hKernelBase);
         CallDllLoadCallbacks(&g_hKernel32);
     } else if (RtlEqualUnicodeString((PUNICODE_STRING)NotificationData->Loaded.BaseDllName,
                                      (PUNICODE_STRING)&g_usUser32,
@@ -142,6 +144,7 @@ PA_Initialize(
     }
     if (NT_SUCCESS(PA_Util_GetSysDllBase(&g_usKernel32, &g_hKernel32)))
     {
+        PA_Util_GetSysDllBase(&g_usKernelBase, &g_hKernelBase);
         CallDllLoadCallbacks(&g_hKernel32);
     }
     if (NT_SUCCESS(PA_Util_GetSysDllBase(&g_usUser32, &g_hUser32)))

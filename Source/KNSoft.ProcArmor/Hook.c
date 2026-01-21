@@ -27,10 +27,8 @@ Hooked_RtlUserThreadStart(
     if (NT_SUCCESS(Status))
     {
         ((typeof(&RtlUserThreadStart))g_hfRtlUserThreadStart.Address)(Function, Parameter);
-    } else
-    {
-        RtlExitUserThread(Status);
     }
+    RtlExitUserThread(Status);
     RtlFailFast(FAST_FAIL_INVALID_THREAD_STATE);
 }
 

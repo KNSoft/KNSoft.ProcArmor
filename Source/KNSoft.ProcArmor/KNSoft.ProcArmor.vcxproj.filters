@@ -6,7 +6,6 @@
     <ClCompile Include="AntiDebug.c" />
     <ClCompile Include="Environment.c" />
     <ClCompile Include="Util.c" />
-    <ClCompile Include="Misc.c" />
     <ClCompile Include="Integrity.c" />
     <ClCompile Include="Config.c" />
     <ClCompile Include="AntiDLLAttach.c" />

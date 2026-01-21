@@ -1,12 +1,38 @@
 ﻿#include "ProcArmor.inl"
 
+typedef enum _DLL_LOAD_API
+{
+    iFnLdrLoadDll = 0,
+    iFnLoadLibraryW = 1,
+    iFnLoadLibraryA = 2,
+    iFnLoadLibraryExW = 3,
+    iFnLoadLibraryExA = 4,
+    iFnKernelBase = 4
+} DLL_LOAD_API;
+
 static PA_UTIL_HOOK_FUNC g_hfLoadDll[] = {
+    /* [0] ntdll.dll!LdrLoadDll() */
     { &g_hNtdll, RTL_CONSTANT_STRING("LdrLoadDll"), 0, NULL, NULL },
+    /* [1-4] kernel32.dll!LoadLibrary* */
     { &g_hKernel32, RTL_CONSTANT_STRING("LoadLibraryW"), 0, NULL, NULL },
     { &g_hKernel32, RTL_CONSTANT_STRING("LoadLibraryA"), 0, NULL, NULL },
     { &g_hKernel32, RTL_CONSTANT_STRING("LoadLibraryExW"), 0, NULL, NULL },
     { &g_hKernel32, RTL_CONSTANT_STRING("LoadLibraryExA"), 0, NULL, NULL },
+    /* [5-8] KernelBase.dll!LoadLibrary* */
+    { &g_hKernelBase, RTL_CONSTANT_STRING("LoadLibraryW"), 0, NULL, NULL },
+    { &g_hKernelBase, RTL_CONSTANT_STRING("LoadLibraryA"), 0, NULL, NULL },
+    { &g_hKernelBase, RTL_CONSTANT_STRING("LoadLibraryExW"), 0, NULL, NULL },
+    { &g_hKernelBase, RTL_CONSTANT_STRING("LoadLibraryExA"), 0, NULL, NULL },
 };
+
+static
+PVOID
+PreferKernelBaseDllLoadAPI(
+    _In_ DLL_LOAD_API DllLoadAPI)
+{
+    PVOID pfn = g_hfLoadDll[DllLoadAPI + iFnKernelBase].Address;
+    return pfn != NULL ? pfn : g_hfLoadDll[DllLoadAPI].Address;
+}
 
 static
 LOGICAL
@@ -47,10 +73,10 @@ Hooked_LdrLoadDll(
     {
         return STATUS_ACCESS_DENIED;
     }
-    return ((typeof(&LdrLoadDll))g_hfLoadDll[0].Address)(DllPath,
-                                                         DllCharacteristics,
-                                                         DllName,
-                                                         DllHandle);
+    return ((typeof(&LdrLoadDll))g_hfLoadDll[iFnLdrLoadDll].Address)(DllPath,
+                                                                     DllCharacteristics,
+                                                                     DllName,
+                                                                     DllHandle);
 }
 
 static
@@ -65,7 +91,7 @@ Hooked_LoadLibraryW(
         _Inline_BaseSetLastNTError(STATUS_ACCESS_DENIED);
         return NULL;
     }
-    return ((typeof(&LoadLibraryW))g_hfLoadDll[1].Address)(lpLibFileName);
+    return ((typeof(&LoadLibraryW))PreferKernelBaseDllLoadAPI(iFnLoadLibraryW))(lpLibFileName);
 }
 
 static
@@ -80,7 +106,8 @@ Hooked_LoadLibraryA(
         _Inline_BaseSetLastNTError(STATUS_ACCESS_DENIED);
         return NULL;
     }
-    return ((typeof(&LoadLibraryA))g_hfLoadDll[2].Address)(lpLibFileName);
+    
+    return ((typeof(&LoadLibraryA))PreferKernelBaseDllLoadAPI(iFnLoadLibraryA))(lpLibFileName);
 }
 
 static
@@ -97,7 +124,7 @@ Hooked_LoadLibraryExW(
         _Inline_BaseSetLastNTError(STATUS_ACCESS_DENIED);
         return NULL;
     }
-    return ((typeof(&LoadLibraryExW))g_hfLoadDll[3].Address)(lpLibFileName, hFile, dwFlags);
+    return ((typeof(&LoadLibraryExW))PreferKernelBaseDllLoadAPI(iFnLoadLibraryExW))(lpLibFileName, hFile, dwFlags);
 }
 
 static
@@ -114,7 +141,7 @@ Hooked_LoadLibraryExA(
         _Inline_BaseSetLastNTError(STATUS_ACCESS_DENIED);
         return NULL;
     }
-    return ((typeof(&LoadLibraryExA))g_hfLoadDll[4].Address)(lpLibFileName, hFile, dwFlags);
+    return ((typeof(&LoadLibraryExA))PreferKernelBaseDllLoadAPI(iFnLoadLibraryExA))(lpLibFileName, hFile, dwFlags);
 }
 
 static CONST PVOID g_pfnHookedLoadDll[] = {
@@ -167,7 +194,7 @@ PA_AntiDLLAttach_SysDllLoad(
     {
         for (ULONG i = 1; i < ARRAYSIZE(g_hfLoadDll); i++)
         {
-            PA_Util_SetHook(&g_hfLoadDll[i], g_pfnHookedLoadDll[i - 1]);
+            PA_Util_SetHook(&g_hfLoadDll[i], g_pfnHookedLoadDll[(i - 1) % ARRAYSIZE(g_pfnHookedLoadDll)]);
         }
     }
 }
